@@ -4,6 +4,9 @@ Ausbildungshilfe :)
 
 Ein kleines programm um betstimmte Netzwerk Berechnen zu üben.
 
-### IP Raum Berechnen
+#### So weit gibt's
 
-### Subnetz IP Raum Berechnen
+- IP Raum Berechnen
+- Subnetz IP Raum Berechnen
+
+Viel Spaß beim lernen
