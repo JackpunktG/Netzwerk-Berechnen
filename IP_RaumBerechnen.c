@@ -271,11 +271,21 @@ void set_IP_subnetz(uint8_t *ip, uint8_t *subNetz)
 #endif
     }
     ipCorrect = false;
-    printf("Classless Inter-Domain Routing (CIDR) läenge?\n");
-    int temp;
-    scanf("%d", &temp);
-    *subNetz = (uint8_t)temp;
-    getchar();
+    bool subNetzCorrect = false;
+    while (!subNetzCorrect)
+    {
+        printf("Classless Inter-Domain Routing (CIDR) läenge?\n");
+        int temp;
+        scanf("%d", &temp);
+        getchar();
+        if (temp < 32 && temp > 0)
+        {
+            *subNetz = (uint8_t)temp;
+            subNetzCorrect = true;
+        }
+        else
+            printf("UNGUELTIG CIDR\n");
+    }
 }
 
 int main()
