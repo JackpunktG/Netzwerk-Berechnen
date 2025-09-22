@@ -184,6 +184,7 @@ void subnetz_berechnen(uint8_t *ip, uint8_t subNetz, int subNetzMenge, uint8_t *
     }
 }
 
+
 void set_IP(char *IP, uint8_t *ip)
 {
     size_t len = strlen(IP);
@@ -298,7 +299,7 @@ int main()
     {
         options = 0;
 
-        printf("\n1 - IP-raum Berechnen\n2 - Subnetz\n9 - exit\n");
+        printf("\n1 - IP-Raum Berechnen\n2 - Subnetze Berechnen\n9 - exit\n");
         scanf("%d", &options);
         getchar();
 
@@ -320,7 +321,7 @@ int main()
             int subNetzMenge;
             set_IP_subnetz(ip, &subNetz);
 
-            printf("Im wieviel Subnetz willst du die Raum verteilen?\n");
+            printf("Im wieviel Subnetz willst du die IP-Raum verteilen?\n");
             scanf("%d", &subNetzMenge);
             getchar();
 
