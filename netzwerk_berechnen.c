@@ -31,6 +31,8 @@ char *windows_getline()
 bool ipCorrect = false;
 bool round1 = false;
 
+void set_IP_subnetz(uint8_t *ip, uint8_t *subNetz);
+
 void *IP_raum_berechnen(uint8_t *ip, uint8_t subNetz, uint8_t *NetzID, uint8_t *BC)
 {
     unsigned int schrittWerte;
@@ -332,6 +334,62 @@ void subnetzmaske_training()
     printf("Du hast %d von %d richtig beantwortet!\n", richtig, fragen);
 }
 
+void netz_planning()
+{
+    int netzAnzahl;
+    printf("Wieviel Netze willst du planen?\n");
+    scanf("%d", &netzAnzahl);
+    getchar();
+
+    for (int i = 1; i <= netzAnzahl; i++)
+    {
+        printf("\n");
+        int hostAnzahl;
+        bool correct = false;
+        while (!correct)
+        {
+            printf("Mindestance Host Anzahl %d?\n", i);
+            scanf("%d", &hostAnzahl);
+            getchar();
+
+            if (hostAnzahl < 1)
+            {
+                printf("UNGUELTIG Anzahl\n");
+                i--;
+            }
+            else
+                correct = true;
+        }
+
+        uint8_t neededBits = 1;
+
+        while ((1 << neededBits) - 2 < hostAnzahl)
+        {
+            neededBits++;
+        }
+
+        printf("Was willst du als ein IP fuer Netz %d?\n", i);
+        uint8_t ip[4];
+        scanf("%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
+        getchar();
+
+
+        uint8_t BC[4];
+        uint8_t subNetz = 32 - neededBits;
+        uint8_t NetzID[4];
+
+        printf("\n--------------------\nNetz: %d", i);
+        IP_raum_berechnen(ip, subNetz, NetzID, BC);
+
+        printf("--------------------\n");
+
+        round1 = false;
+    }
+
+
+
+}
+
 void set_IP(char *IP, uint8_t *ip)
 {
     size_t len = strlen(IP);
@@ -447,7 +505,7 @@ int main()
         options = 0;
 
         printf("\n1 - IP-Raum Berechnen\n2 - Subnetze Berechnen\n3 - VLSM (Variable Length Subnet Masking)\n"
-               "4 - Kennst du ein subNetz Maske?\n9 - exit\n");
+               "4 - Kennst du ein subNetz Maske?\n5 - Netzraeum Plannen\n9 - exit\n");
         scanf("%d", &options);
         getchar();
 
@@ -492,6 +550,10 @@ int main()
         else if (options == 4)
         {
             subnetzmaske_training();
+        }
+        else if (options == 5)
+        {
+            netz_planning();
         }
         else if (options == 9)
         {
