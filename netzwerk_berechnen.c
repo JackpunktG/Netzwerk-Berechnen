@@ -275,29 +275,27 @@ void VLSM_berechnen(uint8_t *ip, uint8_t subNetz, int superNetzMenge, uint8_t *N
     printf("--------------------\nNetzraum %d\n", counter++);
     IP_raum_berechnen(firstNetzID, currentSubNetz, NetzID, BC);
     printf("--------------------\n");
-
-
 }
 
 
-void subnetzmaske_calculator(int subnetz, uint8_t *subnetzmaske)
+void subnetzmaske_calculator(int subnetz, uint8_t *subnetzMask)
 {
     for (int i = 0; i < 4; i++)
     {
         if (subnetz >= 8)
         {
-            subnetzmaske[i] = 255;
+            subnetzMask[i] = 255;
             subnetz -= 8;
         }
         else
         {
             if (subnetz > 0)
             {
-                subnetzmaske[i] = 256 - (int)pow(2, 8 - subnetz);
+                subnetzMask[i] = 256 - (int)pow(2, 8 - subnetz);
                 subnetz = 0;
             }
             else
-                subnetzmaske[i] = 0;
+                subnetzMask[i] = 0;
         }
     }
 }
@@ -311,21 +309,21 @@ void subnetzmaske_training()
     for (int i = 0; i < fragen; i++)
     {
         int random = rand() % 32 + 1;
-        uint8_t subnetzmaske[4];
-        subnetzmaske_calculator(random, subnetzmaske);
+        uint8_t subnetzMask[4];
+        subnetzmaske_calculator(random, subnetzMask);
         printf("Was ist die Subnetzmaske für /%d?\n", random);
         uint8_t eingabe[4];
         scanf("%hhu.%hhu.%hhu.%hhu", &eingabe[0], &eingabe[1], &eingabe[2], &eingabe[3]);
         getchar();
 
-        if (eingabe[0] == subnetzmaske[0] && eingabe[1] == subnetzmaske[1] && eingabe[2] == subnetzmaske[2] && eingabe[3] == subnetzmaske[3])
+        if (eingabe[0] == subnetzMask[0] && eingabe[1] == subnetzMask[1] && eingabe[2] == subnetzMask[2] && eingabe[3] == subnetzMask[3])
         {
             printf("Richtig!\n");
             richtig++;
         }
         else
         {
-            printf("Falsch! Die richtige Antwort ist %d.%d.%d.%d\n", subnetzmaske[0], subnetzmaske[1], subnetzmaske[2], subnetzmaske[3]);
+            printf("Falsch! Die richtige Antwort ist %d.%d.%d.%d\n", subnetzMask[0], subnetzMask[1], subnetzMask[2], subnetzMask[3]);
         }
 
     }
@@ -385,10 +383,70 @@ void netz_planning()
 
         round1 = false;
     }
-
-
-
 }
+
+void subnetzmaske_flip(ushort subnetzMaske, ushort *nibble1, ushort *nibble2, ushort *nibble3, ushort *nibble4)
+{
+
+    ushort  subnetzMask = 0;
+
+    for (int i = 0; i < 16; i++)
+    {
+        if (subnetzMaske & (1 <<  i))
+            subnetzMask |= (1 << (15 - i));
+    }
+
+    *nibble1 = (subnetzMask >> 12) & 0xF;
+    *nibble2 = (subnetzMask >> 8) & 0xF;
+    *nibble3 = (subnetzMask >> 4) & 0xF;
+    *nibble4 = subnetzMask & 0xF;
+}
+
+void ipv6_subnetz()
+{
+    printf("Wir arbeiten nur mit der vierte Block\n");
+    printf("Gib die erste drei Block ein (x:x:x)\n");
+
+    uint16_t block1, block2, block3;
+    scanf("%hx:%hx:%hx:", &block1, &block2, &block3);
+    getchar();
+
+    int subnetz;
+    bool correct = false;
+    while (!correct)
+    {
+        printf("Wieviel Subnetz brauchst du?\n");
+        scanf("%d", &subnetz);
+        getchar();
+        if (subnetz > 0) correct = true;
+        else printf("UNGUELTIG Eingabe\n");
+    }
+    uint8_t neededBits = 1;
+    while ((1 << neededBits) < subnetz)
+    {
+        neededBits++;
+    }
+    printf("\n");
+    uint subtnetzeMenge = (int)pow(2, neededBits);
+
+    ushort subnetzMask = 0;
+
+    for(int i = 0; i < subtnetzeMenge; i++)
+    {
+        ushort nibble1;
+        ushort nibble2;
+        ushort nibble3;
+        ushort nibble4;
+
+        subnetzmaske_flip(subnetzMask, &nibble1, &nibble2, &nibble3, &nibble4);
+        printf("Subnetz %d - %x:%x:%x:%x%x%x%x:: /64\n", i +1, block1, block2, block3, nibble1, nibble2, nibble3, nibble4);
+        subnetzMask++;
+    }
+}
+
+
+
+
 
 void set_IP(char *IP, uint8_t *ip)
 {
@@ -505,7 +563,7 @@ int main()
         options = 0;
 
         printf("\n1 - IP-Raum Berechnen\n2 - Subnetze Berechnen\n3 - VLSM (Variable Length Subnet Masking)\n"
-               "4 - Kennst du ein subNetz Maske?\n5 - Netzraeum Plannen\n9 - exit\n");
+               "4 - Kennst du ein subNetz Maske?\n5 - Netzraeum Plannen\n6 - IPv6 Subnetz\n9 - exit\n");
         scanf("%d", &options);
         getchar();
 
@@ -554,6 +612,10 @@ int main()
         else if (options == 5)
         {
             netz_planning();
+        }
+        else if (options == 6)
+        {
+            ipv6_subnetz();
         }
         else if (options == 9)
         {
